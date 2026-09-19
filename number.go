@@ -105,7 +105,7 @@ func (f Float[T]) Value() T {
 	if uintptr(minIntPtr) <= p && p <= uintptr(maxIntPtr) {
 		return T(int64(p - uintptr(zeroIntPtr)))
 	}
-	return T(cast[unique.Handle[int64]](f.p).Value())
+	return T(cast[unique.Handle[float64]](f.p).Value())
 }
 
 // MakeFloat returns a unique Float handle for the given value v.
