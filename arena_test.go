@@ -9,21 +9,21 @@ func handleBench[Number Signed | Unsigned | Floating, Handle interface{ Value() 
 	b.Helper()
 	b.ReportAllocs()
 
-	var cnt Number
-	var res any
 	b.Run("Make", func(b *testing.B) {
+		var cnt Number
+		var res any
 		for b.Loop() {
 			cnt++
 			res = makeHande(cnt)
 		}
+		h := res.(Handle)
+		if r := h.Value(); r != cnt {
+			b.Fatalf("expected: %v; got %v", cnt, r)
+		}
 	})
 
-	h := res.(Handle)
-	if r := h.Value(); r != cnt {
-		b.Fatalf("expected: %v; got %v", cnt, r)
-	}
-
 	b.Run("Value", func(b *testing.B) {
+		h := MakeInt(67)
 		for b.Loop() {
 			_ = h.Value()
 		}
