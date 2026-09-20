@@ -58,21 +58,21 @@ func main() {
 
 ## Benchmarks
 
-The Int/Uint/Float numbers are usually ~2ns faster in real code (inlining becomes possible).
+The Make{Int,Uint,Float} numbers are usually ~2ns faster in real code (inlining becomes possible).
 These numbers include the overhead due to using a benchmark helper function.
 
-| Benchmark                            | Time/op     | Memory   | Allocations |
-| ------------------------------------ | ----------- | -------- | ----------- |
-| `Int/Make`                           | 4.2 ns/op   | 0 B/op   | 0 allocs/op |
-| `Int/Value`                          | 2.2 ns/op   | 0 B/op   | 0 allocs/op |
-| `Uint/Make`                          | 4.2 ns/op   | 0 B/op   | 0 allocs/op |
-| `Uint/Value`                         | 2.2 ns/op   | 0 B/op   | 0 allocs/op |
-| `Float/Make`                         | 6.5 ns/op   | 0 B/op   | 0 allocs/op |
-| `Float/Value`                        | 2.4 ns/op   | 0 B/op   | 0 allocs/op |
-| `Unique/Make` (`unique.Make[int64]`) | 1,272 ns/op | 180 B/op | 6 allocs/op |
-| `Unique/Value`                       | 1.6 ns/op   | 0 B/op   | 0 allocs/op |
-| `New/Make` (`new(int64)` reference)  | 10.9 ns/op  | 8 B/op   | 1 alloc/op  |
-| `New/Value`                          | 1.6 ns/op   | 0 B/op   | 0 allocs/op |
+| Benchmark                           | Time/op     | Memory   | Allocations |
+| ----------------------------------- | ----------- | -------- | ----------- |
+| `Int/Make`                          | 3.6 ns/op   | 0 B/op   | 0 allocs/op |
+| `Uint/Make`                         | 4.0 ns/op   | 0 B/op   | 0 allocs/op |
+| `Float/Make`                        | 5.5 ns/op   | 0 B/op   | 0 allocs/op |
+| `Unique/Make` (`unique.Make[int]`)  | 1,646 ns/op | 180 B/op | 6 allocs/op |
+| `New/Make` (`new(int64)` reference) | 11.4 ns/op  | 8 B/op   | 1 alloc/op  |
+| `Int/Value`                         | 1.9 ns/op   | 0 B/op   | 0 allocs/op |
+| `Uint/Value`                        | 2.3 ns/op   | 0 B/op   | 0 allocs/op |
+| `Float/Value`                       | 2.3 ns/op   | 0 B/op   | 0 allocs/op |
+| `Unique/Value`                      | 1.9 ns/op   | 0 B/op   | 0 allocs/op |
+| `New/Value`                         | 1.9 ns/op   | 0 B/op   | 0 allocs/op |
 
 `uniquenumber` achieves zero allocations for in-range values, compared to `unique.Make` which allocates 180 bytes and 6 objects per call.
 

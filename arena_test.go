@@ -5,45 +5,49 @@ import (
 	"unique"
 )
 
-func handleBench[Number Signed | Unsigned | Floating, Handle interface{ Value() Number }](b *testing.B, makeHande func(Number) Handle) {
+type TestNumber interface {
+	Signed | Unsigned | Floating
+}
+
+type TestHandle[T TestNumber] interface{ Value() T }
+
+func runMake[Number TestNumber, Handle TestHandle[Number]](b *testing.B, makeHandle func(Number) Handle) {
 	b.Helper()
+
+	var cnt Number
+	for b.Loop() {
+		cnt++
+		_ = makeHandle(cnt)
+	}
+}
+
+func runValue[Number TestNumber, Handle TestHandle[Number]](b *testing.B, makeHandle func(Number) Handle) {
+	b.Helper()
+
+	h := makeHandle(67)
+	for b.Loop() {
+		_ = h.Value()
+	}
+}
+
+func BenchmarkMake(b *testing.B) {
 	b.ReportAllocs()
 
-	b.Run("Make", func(b *testing.B) {
-		var cnt Number
-		var res any
-		for b.Loop() {
-			cnt++
-			res = makeHande(cnt)
-		}
-		h := res.(Handle)
-		if r := h.Value(); r != cnt {
-			b.Fatalf("expected: %v; got %v", cnt, r)
-		}
-	})
-
-	b.Run("Value", func(b *testing.B) {
-		h := MakeInt(67)
-		for b.Loop() {
-			_ = h.Value()
-		}
-	})
+	b.Run("int", func(b *testing.B) { runMake(b, MakeInt[int64]) })
+	b.Run("uint", func(b *testing.B) { runMake(b, MakeUint[uint64]) })
+	b.Run("float", func(b *testing.B) { runMake(b, MakeFloat[float64]) })
+	b.Run("unique", func(b *testing.B) { runMake(b, unique.Make[int]) })
+	b.Run("new", func(b *testing.B) { runMake(b, makeNew[int]) })
 }
 
-func BenchmarkInt(b *testing.B) {
-	handleBench(b, MakeInt[int64])
-}
+func BenchmarkValue(b *testing.B) {
+	b.ReportAllocs()
 
-func BenchmarkUint(b *testing.B) {
-	handleBench(b, MakeUint[uint64])
-}
-
-func BenchmarkFloat(b *testing.B) {
-	handleBench(b, MakeFloat[float64])
-}
-
-func BenchmarkUnique(b *testing.B) {
-	handleBench(b, unique.Make[int64])
+	b.Run("int", func(b *testing.B) { runValue(b, MakeInt[int64]) })
+	b.Run("uint", func(b *testing.B) { runValue(b, MakeUint[uint64]) })
+	b.Run("float", func(b *testing.B) { runValue(b, MakeFloat[float64]) })
+	b.Run("unique", func(b *testing.B) { runValue(b, unique.Make[int]) })
+	b.Run("new", func(b *testing.B) { runValue(b, makeNew[int]) })
 }
 
 type newVal[T any] struct {
@@ -56,11 +60,6 @@ func (n *newVal[T]) Value() T {
 
 func makeNew[T any](v T) *newVal[T] {
 	return &newVal[T]{v: v}
-}
-
-func BenchmarkNew(b *testing.B) {
-	// just for reference in-case unique'ness isn't a requirement
-	handleBench(b, makeNew[int64])
 }
 
 func TestMakeInt(t *testing.T) {
